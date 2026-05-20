@@ -9,7 +9,7 @@ const SUBJECT_COLORS = [
   "#fb7185"  // pink
 ];
 
-function addSubject() {
+function addNewSubject() {
   const code = document.getElementById("subjectCode").value.trim();
   const name = document.getElementById("subjectName").value.trim();
 
@@ -39,7 +39,7 @@ export function renderSubjectsView() {
 
     <input id="s_code" placeholder="Code" />
     <input id="s_name" placeholder="Name" />
-    <button onclick="addSubject()">Add</button>
+    <button onclick="addNewSubject()">Add</button>
 
     <div>
       ${subjects.map(s => `
