@@ -19,6 +19,23 @@
 /* =========================
    BASE
 ========================= */
+html {
+  font-size: 16px;
+}
+
+button, input, select {
+  font-size: 16px; /* prevents iOS zoom + improves readability */
+}
+
+input, select {
+  padding: 12px;
+}
+
+button {
+  padding: 12px 14px;
+  min-height: 44px; /* Apple touch target standard */
+}
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -101,26 +118,45 @@ button:hover {
 
 .nav {
   display: flex;
-  gap: 8px;
-  padding: 12px;
-  position: sticky;
-  top: 0;
+  gap: 6px;
+  padding: 10px;
   background: var(--bg);
 }
 
 .nav button {
   flex: 1;
+  padding: 12px 8px;
+  font-size: 14px;
 }
 
 @media (max-width: 768px) {
   .nav {
     position: fixed;
     bottom: 0;
-    top: auto;
-    width: 100%;
+    left: 0;
+    right: 0;
+
+    gap: 0;
+    padding: 6px;
+
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .nav button {
+    font-size: 12px;
+    padding: 12px 6px;
   }
 
   .view {
     padding-bottom: 70px;
+  }
+
+  .container {
+    padding: 12px;
+  }
+
+  .card {
+    padding: 14px;
   }
 }
