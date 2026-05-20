@@ -7,7 +7,7 @@ function save() {
 }
 
 
-function getSubjects(subjectId) {
+export function getSubjects(subjectId) {
   return subjects.find(s => s.id === subjectId);
 }
 
