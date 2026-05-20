@@ -1,4 +1,4 @@
-import { getAssessments, getSubjects } from "../core/store.js";
+import { getAssessments, getSubjectById } from "../core/store.js";
 
 window._selectedDate = null;
 
@@ -70,7 +70,7 @@ export function renderCalendarView() {
 
             <div class="cal-items">
             ${items.map(i => {
-                const subject = getSubject(i.subjectId);
+                const subject = getSubjectById(i.subjectId);
 
                 return `
                     <div class="cal-item"
