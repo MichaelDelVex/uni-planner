@@ -2,12 +2,15 @@ import { renderSubjectsView } from "./views/subjectsView.js";
 import { renderCalendarView } from "./views/calendarView.js";
 import { renderUpcomingView } from "./views/upcomingView.js";
 import { renderGradesView } from "./views/gradesView.js";
+import { loadData } from "./core/store.js";
 
 let currentView = "calendar";
 
 window.switchView = function(view) {
   currentView = view;
-  render();
+  loadData().then(() => {
+    render();
+  });
 };
 
 function renderNav() {
@@ -39,4 +42,6 @@ function render() {
   `;
 }
 
-render();
+loadData().then(() => {
+  render();
+});

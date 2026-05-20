@@ -1,0 +1,18 @@
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+
+# macOS
+.DS_Store
+
+# windows
+Thumbs.db
+
+# vscode
+.vscode/
+
+# env files (future)
+.env
+.env.local
