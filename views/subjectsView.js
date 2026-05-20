@@ -1,18 +1,35 @@
 import { getSubjects, addSubject } from "../core/store.js";
 
-window.addSubject = function () {
-  const code = document.getElementById("s_code").value;
-  const name = document.getElementById("s_name").value;
+const SUBJECT_COLORS = [
+  "#60a5fa", // blue
+  "#34d399", // green
+  "#fbbf24", // yellow
+  "#f87171", // red
+  "#a78bfa", // purple
+  "#fb7185"  // pink
+];
 
-  addSubject({
+function addSubject() {
+  const code = document.getElementById("subjectCode").value.trim();
+  const name = document.getElementById("subjectName").value.trim();
+
+  if (!code || !name) return;
+
+  const color =
+    SUBJECT_COLORS[subjects.length % SUBJECT_COLORS.length];
+
+  subjects.push({
     id: Date.now(),
     code,
     name,
-    color: "#3b82f6"
+    color
   });
 
-  render();
-};
+  document.getElementById("subjectCode").value = "";
+  document.getElementById("subjectName").value = "";
+
+  save();
+}
 
 export function renderSubjectsView() {
   const subjects = getSubjects();

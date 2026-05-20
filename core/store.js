@@ -10,6 +10,10 @@ export function getSubjects() {
   return subjects;
 }
 
+function getSubject(subjectId) {
+  return subjects.find(s => s.id === subjectId);
+}
+
 export function getAssessments() {
   return assessments;
 }

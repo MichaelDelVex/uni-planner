@@ -1,61 +1,61 @@
-import { getAssessments } from "../core/store.js";
+import { getAssessments, getSubjects } from "../core/store.js";
 
 window._selectedDate = null;
 
-window.setDate = function(date) {
-  window._selectedDate = date;
+window.setDate = function (date) {
+    window._selectedDate = date;
 
-  const title = prompt("Assessment title?");
-  if (!title) return;
+    const title = prompt("Assessment title?");
+    if (!title) return;
 
-  const assessments = JSON.parse(localStorage.getItem("assessments") || "[]");
+    const assessments = JSON.parse(localStorage.getItem("assessments") || "[]");
 
-  assessments.push({
-    id: Date.now(),
-    title,
-    subjectId: null,
-    dueDate: date,
-    weight: 0,
-    mark: 0
-  });
+    assessments.push({
+        id: Date.now(),
+        title,
+        subjectId: null,
+        dueDate: date,
+        weight: 0,
+        mark: 0
+    });
 
-  localStorage.setItem("assessments", JSON.stringify(assessments));
-  location.reload(); // simple refresh for now
+    localStorage.setItem("assessments", JSON.stringify(assessments));
+    location.reload(); // simple refresh for now
 };
 
 function getMonthMatrix(year, month) {
-  const first = new Date(year, month, 1);
-  const last = new Date(year, month + 1, 0);
+    const first = new Date(year, month, 1);
+    const last = new Date(year, month + 1, 0);
 
-  const startDay = first.getDay(); // 0-6
-  const daysInMonth = last.getDate();
+    const startDay = first.getDay(); // 0-6
+    const daysInMonth = last.getDate();
 
-  const cells = [];
+    const cells = [];
 
-  // padding before month starts
-  for (let i = 0; i < startDay; i++) {
-    cells.push(null);
-  }
+    // padding before month starts
+    for (let i = 0; i < startDay; i++) {
+        cells.push(null);
+    }
 
-  for (let d = 1; d <= daysInMonth; d++) {
-    const date = new Date(year, month, d);
-    const iso = date.toISOString().split("T")[0];
-    cells.push(iso);
-  }
+    for (let d = 1; d <= daysInMonth; d++) {
+        const date = new Date(year, month, d);
+        const iso = date.toISOString().split("T")[0];
+        cells.push(iso);
+    }
 
-  return cells;
+    return cells;
 }
 
 export function renderCalendarView() {
-  const assessments = getAssessments();
+    const assessments = getAssessments();
 
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
 
-  const days = getMonthMatrix(year, month);
+    const days = getMonthMatrix(year, month);
 
-  const html = `
+    const html = `
     <h2>Calendar</h2>
 
     <div class="calendar-grid">
@@ -69,15 +69,22 @@ export function renderCalendarView() {
             <div class="cal-date">${date.split("-")[2]}</div>
 
             <div class="cal-items">
-              ${items.map(i => `
-                <div class="cal-item">• ${i.title}</div>
-              `).join("")}
+            ${items.map(i => {
+                const subject = getSubject(i.subjectId);
+
+                return `
+                    <div class="cal-item"
+                        style="border-left: 3px solid ${subject?.color || '#64748b'}; padding-left: 6px;">
+                    ${i.title}
+                    </div>
+                `;
+        }).join("")}
             </div>
           </div>
         `;
-      }).join("")}
+    }).join("")}
     </div>
   `;
 
-  return html;
+    return html;
 }
