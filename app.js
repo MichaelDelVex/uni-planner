@@ -8,9 +8,7 @@ let currentView = "calendar";
 
 window.switchView = function(view) {
   currentView = view;
-  loadData().then(() => {
-    render();
-  });
+  render();
 };
 
 function renderNav() {
