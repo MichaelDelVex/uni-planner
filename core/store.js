@@ -10,22 +10,44 @@ import {
 
 let subjects = [];
 let assessments = [];
+let currentUserId = null;
 
-const SUBJECTS_COLLECTION = "subjects";
-const ASSESSMENTS_COLLECTION = "assessments";
+function userCollection(collectionName) {
+  if (!currentUserId) {
+    throw new Error("No user is logged in");
+  }
 
-export async function loadData() {
-  const subjectSnapshot = await getDocs(collection(db, SUBJECTS_COLLECTION));
+  return collection(db, "users", currentUserId, collectionName);
+}
+
+function userDoc(collectionName, id) {
+  if (!currentUserId) {
+    throw new Error("No user is logged in");
+  }
+
+  return doc(db, "users", currentUserId, collectionName, id);
+}
+
+export async function loadData(userId) {
+  currentUserId = userId;
+
+  const subjectSnapshot = await getDocs(userCollection("subjects"));
   subjects = subjectSnapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
   }));
 
-  const assessmentSnapshot = await getDocs(collection(db, ASSESSMENTS_COLLECTION));
+  const assessmentSnapshot = await getDocs(userCollection("assessments"));
   assessments = assessmentSnapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
   }));
+}
+
+export function clearData() {
+  currentUserId = null;
+  subjects = [];
+  assessments = [];
 }
 
 export function getSubjects() {
@@ -41,7 +63,7 @@ export function getAssessments() {
 }
 
 export async function addSubject(subject) {
-  const ref = await addDoc(collection(db, SUBJECTS_COLLECTION), subject);
+  const ref = await addDoc(userCollection("subjects"), subject);
 
   subjects.push({
     id: ref.id,
@@ -50,7 +72,7 @@ export async function addSubject(subject) {
 }
 
 export async function addAssessment(assessment) {
-  const ref = await addDoc(collection(db, ASSESSMENTS_COLLECTION), assessment);
+  const ref = await addDoc(userCollection("assessments"), assessment);
 
   assessments.push({
     id: ref.id,
@@ -59,7 +81,7 @@ export async function addAssessment(assessment) {
 }
 
 export async function updateAssessment(id, updated) {
-  await updateDoc(doc(db, ASSESSMENTS_COLLECTION, id), updated);
+  await updateDoc(userDoc("assessments", id), updated);
 
   assessments = assessments.map(a =>
     a.id === id ? { ...a, ...updated } : a

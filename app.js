@@ -2,7 +2,7 @@ import { renderSubjectsView } from "./views/subjectsView.js";
 import { renderCalendarView } from "./views/calendarView.js";
 import { renderUpcomingView } from "./views/upcomingView.js";
 import { renderGradesView } from "./views/gradesView.js";
-import { loadData } from "./core/store.js";
+import { loadData, clearData } from "./core/store.js";
 
 import { login, logout, observeAuth } from "./core/auth.js";
 
@@ -52,12 +52,12 @@ window.render = function render() {
 }
 
 observeAuth(async (user) => {
-  console.log("AUTH USER:", user);
-
   currentUser = user;
 
   if (user) {
     await loadData(user.uid);
+  } else {
+    clearData();
   }
 
   render();
