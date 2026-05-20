@@ -6,10 +6,6 @@ function save() {
   localStorage.setItem("assessments", JSON.stringify(assessments));
 }
 
-export function getSubjects() {
-  return subjects;
-}
-
 function getSubject(subjectId) {
   return subjects.find(s => s.id === subjectId);
 }
