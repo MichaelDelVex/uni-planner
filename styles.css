@@ -1,19 +1,26 @@
 /* =========================
-   THEME TOKENS
+   THEME TOKENS (REFINED)
 ========================= */
 :root {
-  --bg: #0f172a;
-  --surface: #1e293b;
+  --bg: #0b1220;
+  --bg-gradient: radial-gradient(circle at top, #0f172a, #0b1220);
 
-  --text: #e2e8f0;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-strong: rgba(255, 255, 255, 0.06);
+
+  --text: #e5e7eb;
   --muted: #94a3b8;
 
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
+  --primary: #60a5fa;
+  --primary-hover: #3b82f6;
 
-  --border: #334155;
+  --accent: #22c55e;
 
-  --radius: 12px;
+  --border: rgba(148, 163, 184, 0.18);
+
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+
+  --radius: 14px;
 }
 
 /* =========================
@@ -23,45 +30,43 @@ html {
   font-size: 16px;
 }
 
-button, input, select {
-  font-size: 16px; /* prevents iOS zoom + improves readability */
-}
-
-input, select {
-  padding: 12px;
-}
-
-button {
-  padding: 12px 14px;
-  min-height: 44px; /* Apple touch target standard */
-}
-
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
   background: var(--bg);
+  background-image: var(--bg-gradient);
   color: var(--text);
+  -webkit-font-smoothing: antialiased;
 }
 
 .container {
   max-width: 900px;
   margin: auto;
-  padding: 20px;
+  padding: 22px;
 }
 
 .title {
-  margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 18px;
 }
 
 /* =========================
-   CARDS
+   CARDS (modern glass style)
 ========================= */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  padding: 16px;
+  padding: 18px;
   margin-bottom: 16px;
   border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.card:hover {
+  background: var(--surface-strong);
 }
 
 /* =========================
@@ -69,46 +74,66 @@ body {
 ========================= */
 input, select {
   width: 100%;
-  padding: 8px;
-  margin: 6px 0;
+  padding: 12px 14px;
+  margin: 8px 0;
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.02);
   color: var(--text);
+  outline: none;
+  transition: 0.2s ease;
+}
+
+input:focus, select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
 }
 
 /* =========================
    BUTTONS
 ========================= */
 button {
-  padding: 8px 12px;
-  margin-top: 8px;
+  padding: 12px 14px;
+  margin-top: 10px;
   border: none;
   border-radius: var(--radius);
-  background: var(--primary);
+  background: linear-gradient(135deg, var(--primary), #2563eb);
   color: white;
   cursor: pointer;
+  font-weight: 500;
+  transition: transform 0.15s ease, filter 0.15s ease;
 }
 
 button:hover {
-  background: var(--primary-hover);
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0px);
 }
 
 /* =========================
-   LISTS
+   LISTS / ITEMS
 ========================= */
 .list {
   margin-top: 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .item {
-  padding: 10px;
-  background: rgba(255,255,255,0.03);
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+  transition: 0.2s ease;
+}
+
+.item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-1px);
 }
 
 .muted {
@@ -116,47 +141,134 @@ button:hover {
   font-size: 12px;
 }
 
+/* =========================
+   NAVIGATION (APP BAR STYLE)
+========================= */
 .nav {
   display: flex;
   gap: 6px;
-  padding: 10px;
-  background: var(--bg);
+  padding: 12px;
+  position: sticky;
+  top: 0;
+  background: rgba(11, 18, 32, 0.7);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  z-index: 10;
 }
 
 .nav button {
   flex: 1;
-  padding: 12px 8px;
-  font-size: 14px;
+  padding: 10px 8px;
+  font-size: 13px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
 }
 
+.nav button:hover {
+  color: var(--text);
+  border-color: var(--primary);
+}
+
+.nav button.active {
+  background: rgba(96, 165, 250, 0.15);
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+/* =========================
+   CALENDAR GRID
+========================= */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.cal-cell {
+  min-height: 80px;
+  padding: 8px;
+  border-radius: var(--radius);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.cal-cell:hover {
+  background: rgba(255,255,255,0.06);
+  transform: translateY(-1px);
+}
+
+.cal-cell.empty {
+  background: transparent;
+  border: none;
+  cursor: default;
+}
+
+.cal-date {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.cal-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cal-item {
+  font-size: 11px;
+  color: var(--text);
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =========================
+   MOBILE NAV
+========================= */
 @media (max-width: 768px) {
   .nav {
     position: fixed;
     bottom: 0;
+    top: auto;
     left: 0;
     right: 0;
-
-    gap: 0;
-    padding: 6px;
-
     border-top: 1px solid var(--border);
-    background: var(--surface);
+    border-bottom: none;
   }
 
   .nav button {
-    font-size: 12px;
-    padding: 12px 6px;
+    font-size: 11px;
+    padding: 12px 4px;
   }
 
   .view {
-    padding-bottom: 70px;
+    padding-bottom: 80px;
   }
 
   .container {
-    padding: 12px;
+    padding: 14px;
   }
 
   .card {
-    padding: 14px;
+    padding: 16px;
+  }
+
+  .calendar-grid {
+    gap: 4px;
+  }
+
+  .cal-cell {
+    min-height: 60px;
+    padding: 6px;
+  }
+
+  .cal-item {
+    font-size: 10px;
   }
 }
