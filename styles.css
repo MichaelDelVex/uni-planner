@@ -1,0 +1,100 @@
+/* =========================
+   THEME TOKENS
+========================= */
+:root {
+  --bg: #0f172a;
+  --surface: #1e293b;
+
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+
+  --border: #334155;
+
+  --radius: 12px;
+}
+
+/* =========================
+   BASE
+========================= */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.title {
+  margin-bottom: 20px;
+}
+
+/* =========================
+   CARDS
+========================= */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: var(--radius);
+}
+
+/* =========================
+   INPUTS
+========================= */
+input, select {
+  width: 100%;
+  padding: 8px;
+  margin: 6px 0;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+}
+
+/* =========================
+   BUTTONS
+========================= */
+button {
+  padding: 8px 12px;
+  margin-top: 8px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--primary-hover);
+}
+
+/* =========================
+   LISTS
+========================= */
+.list {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  padding: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 12px;
+}
