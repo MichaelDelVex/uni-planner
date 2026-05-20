@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyDRNfikc4u3MkLXVOsCCytR_1qHsjhVueY",
   authDomain: "uni-planner-67431.firebaseapp.com",
   projectId: "uni-planner-67431",
