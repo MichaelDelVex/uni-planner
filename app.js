@@ -24,7 +24,7 @@ function renderNav() {
   `;
 }
 
-function render() {
+window.render = function render() {
   const root = document.getElementById("app");
 
   let viewHTML = "";
