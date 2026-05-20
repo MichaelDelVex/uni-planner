@@ -1,0 +1,32 @@
+let subjects = JSON.parse(localStorage.getItem("subjects") || "[]");
+let assessments = JSON.parse(localStorage.getItem("assessments") || "[]");
+
+function save() {
+  localStorage.setItem("subjects", JSON.stringify(subjects));
+  localStorage.setItem("assessments", JSON.stringify(assessments));
+}
+
+export function getSubjects() {
+  return subjects;
+}
+
+export function getAssessments() {
+  return assessments;
+}
+
+export function addSubject(subject) {
+  subjects.push(subject);
+  save();
+}
+
+export function addAssessment(a) {
+  assessments.push(a);
+  save();
+}
+
+export function updateAssessment(id, updated) {
+  assessments = assessments.map(a =>
+    a.id === id ? { ...a, ...updated } : a
+  );
+  save();
+}

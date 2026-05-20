@@ -98,3 +98,29 @@ button:hover {
   color: var(--muted);
   font-size: 12px;
 }
+
+.nav {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+}
+
+.nav button {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .nav {
+    position: fixed;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+  }
+
+  .view {
+    padding-bottom: 70px;
+  }
+}
