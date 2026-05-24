@@ -30,6 +30,10 @@ html {
   font-size: 16px;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
@@ -113,6 +117,36 @@ button:active {
   transform: translateY(0px);
 }
 
+.secondary-button {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.danger-button {
+  background: #dc2626;
+}
+
+.small-button {
+  padding: 7px 10px;
+  margin-top: 0;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin: 0;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
 /* =========================
    LISTS / ITEMS
 ========================= */
@@ -134,6 +168,14 @@ button:active {
 .item:hover {
   background: rgba(255, 255, 255, 0.05);
   transform: translateY(-1px);
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
 }
 
 .muted {
@@ -186,6 +228,13 @@ button:active {
   margin-top: 12px;
 }
 
+.cal-weekday {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
 .cal-cell {
   min-height: 80px;
   padding: 8px;
@@ -226,6 +275,83 @@ button:active {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  cursor: pointer;
+  border-radius: 6px;
+  padding-block: 2px;
+}
+
+/* =========================
+   MODAL
+========================= */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(2, 6, 23, 0.68);
+  backdrop-filter: blur(8px);
+}
+
+.modal {
+  width: min(100%, 520px);
+  max-height: calc(100vh - 36px);
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #111827;
+  box-shadow: var(--shadow);
+}
+
+.modal form {
+  padding: 18px;
+}
+
+.modal-header,
+.modal-actions,
+.modal-actions-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-header {
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.modal label {
+  display: block;
+  margin-top: 12px;
+}
+
+.modal label span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.modal-actions {
+  justify-content: space-between;
+  margin-top: 18px;
+}
+
+.modal-actions-main {
+  margin-left: auto;
 }
 
 /* =========================
@@ -270,5 +396,40 @@ button:active {
 
   .cal-item {
     font-size: 10px;
+  }
+
+  .modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal {
+    width: 100%;
+    max-height: calc(100vh - 24px);
+    border-right: none;
+    border-bottom: none;
+    border-left: none;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .modal-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions-main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .modal-actions button {
+    width: 100%;
   }
 }

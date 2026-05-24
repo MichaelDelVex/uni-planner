@@ -1,28 +1,7 @@
 import {
   getAssessments,
-  getSubjectById,
-  addAssessment
+  getSubjectById
 } from "../core/store.js";
-
-window._selectedDate = null;
-
-window.setDate = async function (date) {
-  window._selectedDate = date;
-
-  const title = prompt("Assessment title?");
-  if (!title) return;
-
-  await addAssessment({
-    title,
-    subjectId: null,
-    dueDate: date,
-    type: "assignment",
-    weight: 0,
-    mark: 0
-  });
-
-  render();
-};
 
 function getMonthMatrix(year, month) {
   const first = new Date(year, month, 1);
@@ -54,18 +33,20 @@ export function renderCalendarView() {
   const month = now.getMonth();
 
   const days = getMonthMatrix(year, month);
+  const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const html = `
     <h2>Calendar</h2>
 
     <div class="calendar-grid">
+      ${weekdays.map(day => `<div class="cal-weekday">${day}</div>`).join("")}
       ${days.map(date => {
         if (!date) return `<div class="cal-cell empty"></div>`;
 
         const items = assessments.filter(a => a.dueDate === date);
 
         return `
-          <div class="cal-cell" onclick="setDate('${date}')">
+          <div class="cal-cell" data-action="new-assignment" data-due-date="${date}">
             <div class="cal-date">${date.split("-")[2]}</div>
 
             <div class="cal-items">
@@ -75,6 +56,8 @@ export function renderCalendarView() {
                 return `
                   <div
                     class="cal-item"
+                    data-action="edit-assignment"
+                    data-assessment-id="${item.id}"
                     style="border-left: 3px solid ${subject?.color || "#64748b"}; padding-left: 6px;"
                   >
                     ${item.title}

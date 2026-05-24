@@ -3,6 +3,7 @@ import { db } from "./firebase.js";
 import {
   collection,
   addDoc,
+  deleteDoc,
   getDocs,
   updateDoc,
   doc
@@ -62,6 +63,10 @@ export function getAssessments() {
   return assessments;
 }
 
+export function getAssessmentById(id) {
+  return assessments.find(a => a.id === id);
+}
+
 export async function addSubject(subject) {
   const ref = await addDoc(userCollection("subjects"), subject);
 
@@ -86,4 +91,10 @@ export async function updateAssessment(id, updated) {
   assessments = assessments.map(a =>
     a.id === id ? { ...a, ...updated } : a
   );
+}
+
+export async function deleteAssessment(id) {
+  await deleteDoc(userDoc("assessments", id));
+
+  assessments = assessments.filter(a => a.id !== id);
 }

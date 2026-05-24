@@ -14,9 +14,10 @@ const SUBJECT_COLORS = [
   "#fb7185"
 ];
 
-window.addSubject = async function () {
-  const code = document.getElementById("s_code").value.trim();
-  const name = document.getElementById("s_name").value.trim();
+export async function addSubjectFromForm(form) {
+  const fields = form.elements;
+  const code = fields.namedItem("code").value.trim();
+  const name = fields.namedItem("name").value.trim();
 
   if (!code || !name) return;
 
@@ -27,17 +28,16 @@ window.addSubject = async function () {
     name,
     color: SUBJECT_COLORS[subjects.length % SUBJECT_COLORS.length]
   });
+}
 
-  render();
-};
-
-window.addAssignment = async function () {
-  const subjectId = document.getElementById("a_subject").value;
-  const title = document.getElementById("a_title").value.trim();
-  const type = document.getElementById("a_type").value;
-  const dueDate = document.getElementById("a_dueDate").value;
-  const weight = Number(document.getElementById("a_weight").value || 0);
-  const mark = Number(document.getElementById("a_mark").value || 0);
+export async function addAssignmentFromForm(form) {
+  const fields = form.elements;
+  const subjectId = fields.namedItem("subjectId").value;
+  const title = fields.namedItem("title").value.trim();
+  const type = fields.namedItem("type").value;
+  const dueDate = fields.namedItem("dueDate").value;
+  const weight = Number(fields.namedItem("weight").value || 0);
+  const mark = Number(fields.namedItem("mark").value || 0);
 
   if (!subjectId || !title || !dueDate) return;
 
@@ -49,9 +49,7 @@ window.addAssignment = async function () {
     weight,
     mark
   });
-
-  render();
-};
+}
 
 export function renderSubjectsView() {
   const subjects = getSubjects();
@@ -60,26 +58,26 @@ export function renderSubjectsView() {
   return `
     <h2>Subjects</h2>
 
-    <div class="card">
+    <form class="card" data-form="subject">
       <h3>Add Subject</h3>
-      <input id="s_code" placeholder="Subject code e.g. NUR1001" />
-      <input id="s_name" placeholder="Subject name" />
-      <button onclick="addSubject()">Add Subject</button>
-    </div>
+      <input name="code" placeholder="Subject code e.g. NUR1001" />
+      <input name="name" placeholder="Subject name" />
+      <button type="submit">Add Subject</button>
+    </form>
 
-    <div class="card">
+    <form class="card" data-form="assignment-quick-add">
       <h3>Add Assignment / Exam / Class</h3>
 
-      <select id="a_subject">
+      <select name="subjectId">
         <option value="">Select subject</option>
         ${subjects.map(s => `
           <option value="${s.id}">${s.code} - ${s.name}</option>
         `).join("")}
       </select>
 
-      <input id="a_title" placeholder="Title e.g. Essay 1" />
+      <input name="title" placeholder="Title e.g. Essay 1" />
 
-      <select id="a_type">
+      <select name="type">
         <option value="assignment">Assignment</option>
         <option value="exam">Exam</option>
         <option value="class">Class</option>
@@ -88,13 +86,13 @@ export function renderSubjectsView() {
         <option value="other">Other</option>
       </select>
 
-      <input id="a_dueDate" type="date" />
+      <input name="dueDate" type="date" />
 
-      <input id="a_weight" type="number" placeholder="Weight % optional" />
-      <input id="a_mark" type="number" placeholder="Mark % optional" />
+      <input name="weight" type="number" placeholder="Weight % optional" />
+      <input name="mark" type="number" placeholder="Mark % optional" />
 
-      <button onclick="addAssignment()">Add Item</button>
-    </div>
+      <button type="submit">Add Item</button>
+    </form>
 
     <h3>Your Subjects</h3>
 
@@ -109,7 +107,10 @@ export function renderSubjectsView() {
           <div class="list">
             ${subjectItems.map(a => `
               <div class="item">
-                <strong>${a.title}</strong>
+                <div class="item-header">
+                  <strong>${a.title}</strong>
+                  <button class="small-button" type="button" data-action="edit-assignment" data-assessment-id="${a.id}">Edit</button>
+                </div>
                 <div class="muted">${a.type} · Due ${a.dueDate}</div>
                 <div class="muted">Weight: ${a.weight || 0}% · Mark: ${a.mark || 0}%</div>
               </div>
