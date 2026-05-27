@@ -1,5 +1,5 @@
 import { getAssessments } from "../core/store.js";
-import { formatDisplayDate, sortByDueDate } from "./dateFormat.js";
+import { formatDisplayDate, isBeforeToday, sortByDueDate } from "./dateFormat.js";
 
 export function renderUpcomingView() {
   const items = [...getAssessments()]
@@ -9,9 +9,11 @@ export function renderUpcomingView() {
     <h2>Upcoming</h2>
 
     ${items.map(a => `
-      <div class="card">
-        <strong>${a.title}</strong>
-        <div>${formatDisplayDate(a.dueDate)}</div>
+      <div class="card upcoming-card ${isBeforeToday(a.dueDate) ? "is-past-due" : ""}">
+        <div class="upcoming-card-content">
+          <strong>${a.title}</strong>
+          <div>${formatDisplayDate(a.dueDate)}</div>
+        </div>
       </div>
     `).join("")}
   `;

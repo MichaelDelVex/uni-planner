@@ -28,6 +28,19 @@ function sortByDueDate(a, b) {
   return a.dueDate.localeCompare(b.dueDate);
 }
 
+function getTodayIsoDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function isBeforeToday(isoDate = "") {
+  return isoDate < getTodayIsoDate();
+}
+
 test("subjects view renders add forms and edits assignments without globals", async () => {
   const addedSubjects = [];
   const addedAssessments = [];
@@ -95,6 +108,7 @@ test("subjects and upcoming views display dd/mm/yyyy dates in due date order", a
   const upcomingView = await loadBrowserModule(upcomingPath, {
     getAssessments: () => assessments,
     formatDisplayDate,
+    isBeforeToday,
     sortByDueDate
   }, ["renderUpcomingView"]);
 
@@ -102,6 +116,21 @@ test("subjects and upcoming views display dd/mm/yyyy dates in due date order", a
   assert.ok(upcomingHtml.indexOf("Earliest") < upcomingHtml.indexOf("Latest"));
   assert.match(upcomingHtml, /01\/06\/2026/);
   assert.match(upcomingHtml, /20\/06\/2026/);
+});
+
+test("upcoming view marks items due before today", async () => {
+  const now = new Date();
+  const pastDate = isoDate(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+
+  const upcomingView = await loadBrowserModule(upcomingPath, {
+    getAssessments: () => [{ id: "a1", title: "Past essay", dueDate: pastDate }],
+    formatDisplayDate,
+    isBeforeToday,
+    sortByDueDate
+  }, ["renderUpcomingView"]);
+
+  const html = upcomingView.renderUpcomingView();
+  assert.match(html, /is-past-due/);
 });
 
 test("calendar view marks days for new assignments and items for editing", async () => {

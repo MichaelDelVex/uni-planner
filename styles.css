@@ -253,12 +253,16 @@ button:active {
 }
 
 .cal-cell {
-  min-height: 80px;
+  aspect-ratio: 1;
+  min-height: 0;
   padding: 8px;
   border-radius: var(--radius);
   background: rgba(255,228,241,0.055);
   border: 1px solid var(--border);
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   transition: 0.15s ease;
 }
 
@@ -283,10 +287,14 @@ button:active {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .cal-item {
+  width: 100%;
   font-size: 11px;
+  line-height: 1.25;
   color: var(--text);
   opacity: 0.9;
   white-space: nowrap;
@@ -295,6 +303,45 @@ button:active {
   cursor: pointer;
   border-radius: 6px;
   padding-block: 2px;
+}
+
+/* =========================
+   UPCOMING
+========================= */
+.upcoming-card {
+  position: relative;
+  min-height: 84px;
+  overflow: hidden;
+}
+
+.upcoming-card-content {
+  padding-right: 88px;
+}
+
+.upcoming-card.is-past-due {
+  background: rgba(204, 194, 202, 0.055);
+  border-color: rgba(211, 184, 200, 0.18);
+  color: rgba(255, 241, 248, 0.68);
+}
+
+.upcoming-card.is-past-due .upcoming-card-content {
+  opacity: 0.62;
+}
+
+.upcoming-card.is-past-due::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  height: 85%;
+  aspect-ratio: 1;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  color: #22c55e;
+  font-size: 58px;
+  font-weight: 800;
+  line-height: 1;
 }
 
 /* =========================
@@ -407,12 +454,20 @@ button:active {
   }
 
   .cal-cell {
-    min-height: 60px;
     padding: 6px;
   }
 
   .cal-item {
     font-size: 10px;
+  }
+
+  .upcoming-card-content {
+    padding-right: 64px;
+  }
+
+  .upcoming-card.is-past-due::after {
+    right: 10px;
+    font-size: 46px;
   }
 
   .modal-backdrop {
