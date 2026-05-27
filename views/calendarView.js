@@ -3,6 +3,39 @@ import {
   getSubjectById
 } from "../core/store.js";
 
+let displayedMonth = new Date();
+displayedMonth = new Date(displayedMonth.getFullYear(), displayedMonth.getMonth(), 1);
+
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December"
+];
+
+function toLocalIsoDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function getCalendarTitle(year, month) {
+  const currentYear = new Date().getFullYear();
+  const label = monthNames[month];
+
+  return year === currentYear ? label : `${label} ${year}`;
+}
+
 function getMonthMatrix(year, month) {
   const first = new Date(year, month, 1);
   const last = new Date(year, month + 1, 0);
@@ -18,25 +51,36 @@ function getMonthMatrix(year, month) {
 
   for (let d = 1; d <= daysInMonth; d++) {
     const date = new Date(year, month, d);
-    const iso = date.toISOString().split("T")[0];
+    const iso = toLocalIsoDate(date);
     cells.push(iso);
   }
 
   return cells;
 }
 
+export function navigateCalendarMonth(offset) {
+  displayedMonth = new Date(
+    displayedMonth.getFullYear(),
+    displayedMonth.getMonth() + offset,
+    1
+  );
+}
+
 export function renderCalendarView() {
   const assessments = getAssessments();
 
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
+  const year = displayedMonth.getFullYear();
+  const month = displayedMonth.getMonth();
 
   const days = getMonthMatrix(year, month);
   const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const html = `
-    <h2>Calendar</h2>
+    <div class="calendar-header">
+      <button class="icon-button" type="button" data-action="calendar-prev-month" aria-label="Previous month">&lt;</button>
+      <h2>${getCalendarTitle(year, month)}</h2>
+      <button class="icon-button" type="button" data-action="calendar-next-month" aria-label="Next month">&gt;</button>
+    </div>
 
     <div class="calendar-grid">
       ${weekdays.map(day => `<div class="cal-weekday">${day}</div>`).join("")}

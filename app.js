@@ -1,5 +1,5 @@
 import { renderSubjectsView } from "./views/subjectsView.js";
-import { renderCalendarView } from "./views/calendarView.js";
+import { navigateCalendarMonth, renderCalendarView } from "./views/calendarView.js";
 import { renderUpcomingView } from "./views/upcomingView.js";
 import { renderGradesView } from "./views/gradesView.js";
 import { loadData, clearData } from "./core/store.js";
@@ -88,6 +88,18 @@ document.addEventListener("click", async (event) => {
 
   if (action === "logout") {
     await logout();
+    return;
+  }
+
+  if (action === "calendar-prev-month") {
+    navigateCalendarMonth(-1);
+    render();
+    return;
+  }
+
+  if (action === "calendar-next-month") {
+    navigateCalendarMonth(1);
+    render();
     return;
   }
 

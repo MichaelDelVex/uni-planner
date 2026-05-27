@@ -4,11 +4,28 @@ import { loadBrowserModule, makeForm } from "./helpers/moduleLoader.mjs";
 
 const subjectsPath = new URL("../views/subjectsView.js", import.meta.url);
 const calendarPath = new URL("../views/calendarView.js", import.meta.url);
+const upcomingPath = new URL("../views/upcomingView.js", import.meta.url);
 const modalPath = new URL("../views/assignmentModal.js", import.meta.url);
 const subjectModalPath = new URL("../views/subjectModal.js", import.meta.url);
 
 function plain(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+function isoDate(year, month, day) {
+  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function formatDisplayDate(isoDate = "") {
+  const [year, month, day] = isoDate.split("-");
+
+  if (!year || !month || !day) return isoDate;
+
+  return `${day}/${month}/${year}`;
+}
+
+function sortByDueDate(a, b) {
+  return a.dueDate.localeCompare(b.dueDate);
 }
 
 test("subjects view renders add forms and edits assignments without globals", async () => {
@@ -21,7 +38,9 @@ test("subjects view renders add forms and edits assignments without globals", as
     getSubjects: () => subjects,
     getAssessments: () => assessments,
     addSubject: async subject => addedSubjects.push(subject),
-    addAssessment: async assessment => addedAssessments.push(assessment)
+    addAssessment: async assessment => addedAssessments.push(assessment),
+    formatDisplayDate,
+    sortByDueDate
   }, ["renderSubjectsView", "addSubjectFromForm", "addAssignmentFromForm"]);
 
   const html = view.renderSubjectsView();
@@ -29,6 +48,7 @@ test("subjects view renders add forms and edits assignments without globals", as
   assert.match(html, /data-form="assignment-quick-add"/);
   assert.match(html, /data-action="edit-subject"/);
   assert.match(html, /data-action="edit-assignment"/);
+  assert.match(html, /Due 01\/06\/2026/);
   assert.doesNotMatch(html, /onclick=/);
 
   await view.addSubjectFromForm(makeForm({ code: "PSY100", name: "Psychology" }));
@@ -52,18 +72,59 @@ test("subjects view renders add forms and edits assignments without globals", as
   });
 });
 
+test("subjects and upcoming views display dd/mm/yyyy dates in due date order", async () => {
+  const assessments = [
+    { id: "a1", title: "Latest", subjectId: "s1", dueDate: "2026-06-20" },
+    { id: "a2", title: "Earliest", subjectId: "s1", dueDate: "2026-06-01" }
+  ];
+
+  const subjectsView = await loadBrowserModule(subjectsPath, {
+    getSubjects: () => [{ id: "s1", code: "NUR1001", name: "Nursing", color: "#60a5fa" }],
+    getAssessments: () => assessments,
+    addSubject: async () => {},
+    addAssessment: async () => {},
+    formatDisplayDate,
+    sortByDueDate
+  }, ["renderSubjectsView"]);
+
+  const subjectHtml = subjectsView.renderSubjectsView();
+  assert.ok(subjectHtml.indexOf("Earliest") < subjectHtml.indexOf("Latest"));
+  assert.match(subjectHtml, /Due 01\/06\/2026/);
+  assert.match(subjectHtml, /Due 20\/06\/2026/);
+
+  const upcomingView = await loadBrowserModule(upcomingPath, {
+    getAssessments: () => assessments,
+    formatDisplayDate,
+    sortByDueDate
+  }, ["renderUpcomingView"]);
+
+  const upcomingHtml = upcomingView.renderUpcomingView();
+  assert.ok(upcomingHtml.indexOf("Earliest") < upcomingHtml.indexOf("Latest"));
+  assert.match(upcomingHtml, /01\/06\/2026/);
+  assert.match(upcomingHtml, /20\/06\/2026/);
+});
+
 test("calendar view marks days for new assignments and items for editing", async () => {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+
   const view = await loadBrowserModule(calendarPath, {
-    getAssessments: () => [{ id: "a1", title: "Essay", subjectId: "s1", dueDate: "2026-05-24" }],
+    getAssessments: () => [{ id: "a1", title: "Essay", subjectId: "s1", dueDate: isoDate(currentYear, currentMonth, 24) }],
     getSubjectById: () => ({ color: "#60a5fa" })
-  }, ["renderCalendarView"]);
+  }, ["navigateCalendarMonth", "renderCalendarView"]);
 
   const html = view.renderCalendarView();
   assert.match(html, /class="cal-weekday">Sun/);
+  assert.match(html, /data-action="calendar-prev-month"/);
+  assert.match(html, /data-action="calendar-next-month"/);
   assert.match(html, /data-action="new-assignment"/);
   assert.match(html, /data-action="edit-assignment"/);
   assert.match(html, /data-assessment-id="a1"/);
   assert.doesNotMatch(html, /prompt|onclick=/);
+
+  view.navigateCalendarMonth(12);
+  assert.match(view.renderCalendarView(), new RegExp(String(currentYear + 1)));
 });
 
 test("assignment modal saves new and edited assignments with normalized values", async () => {

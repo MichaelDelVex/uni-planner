@@ -4,6 +4,7 @@ import {
   addSubject,
   addAssessment
 } from "../core/store.js";
+import { formatDisplayDate, sortByDueDate } from "./dateFormat.js";
 
 const SUBJECT_COLORS = [
   "#60a5fa",
@@ -97,7 +98,9 @@ export function renderSubjectsView() {
     <h3>Your Subjects</h3>
 
     ${subjects.map(s => {
-      const subjectItems = assessments.filter(a => a.subjectId === s.id);
+      const subjectItems = assessments
+        .filter(a => a.subjectId === s.id)
+        .sort(sortByDueDate);
 
       return `
         <div class="card" style="border-left: 4px solid ${s.color}">
@@ -116,7 +119,7 @@ export function renderSubjectsView() {
                   <strong>${a.title}</strong>
                   <button class="small-button" type="button" data-action="edit-assignment" data-assessment-id="${a.id}">Edit</button>
                 </div>
-                <div class="muted">${a.type} · Due ${a.dueDate}</div>
+                <div class="muted">${a.type} · Due ${formatDisplayDate(a.dueDate)}</div>
                 <div class="muted">Weight: ${a.weight || 0}% · Mark: ${a.mark || 0}%</div>
               </div>
             `).join("") || `<div class="muted">No items yet</div>`}

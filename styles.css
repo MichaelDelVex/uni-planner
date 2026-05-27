@@ -2,7 +2,7 @@
    THEME TOKENS (REFINED)
 ========================= */
 :root {
-  --bg: #0b1220;
+  --bg: #000000;
   --bg-gradient: radial-gradient(circle at top, #0f172a, #0b1220);
 
   --surface: rgba(255, 255, 255, 0.04);
@@ -221,6 +221,20 @@ button:active {
 /* =========================
    CALENDAR GRID
 ========================= */
+.calendar-header {
+  display: grid;
+  grid-template-columns: 36px 1fr 36px;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.calendar-header h2 {
+  margin: 0;
+  text-align: center;
+  font-size: 22px;
+}
+
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
