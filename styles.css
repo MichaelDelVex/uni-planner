@@ -61,6 +61,7 @@ body {
    CARDS (modern glass style)
 ========================= */
 .card {
+  min-width: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   padding: 18px;
@@ -79,6 +80,8 @@ body {
 ========================= */
 input, select {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   padding: 12px 14px;
   margin: 8px 0;
   border-radius: var(--radius);
@@ -329,7 +332,7 @@ button:active {
 }
 
 .upcoming-card.is-past-due::after {
-  content: "✓";
+  content: "\2713";
   position: absolute;
   top: 50%;
   right: 14px;
@@ -405,8 +408,12 @@ button:active {
 
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
+}
+
+.form-grid label {
+  min-width: 0;
 }
 
 .modal-actions {

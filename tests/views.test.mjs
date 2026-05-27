@@ -41,6 +41,12 @@ function isBeforeToday(isoDate = "") {
   return isoDate < getTodayIsoDate();
 }
 
+function formatAssignmentType(type = "") {
+  if (!type) return "";
+
+  return `${type.slice(0, 1).toUpperCase()}${type.slice(1)}`;
+}
+
 test("subjects view renders add forms and edits assignments without globals", async () => {
   const addedSubjects = [];
   const addedAssessments = [];
@@ -52,6 +58,7 @@ test("subjects view renders add forms and edits assignments without globals", as
     getAssessments: () => assessments,
     addSubject: async subject => addedSubjects.push(subject),
     addAssessment: async assessment => addedAssessments.push(assessment),
+    formatAssignmentType,
     formatDisplayDate,
     sortByDueDate
   }, ["renderSubjectsView", "addSubjectFromForm", "addAssignmentFromForm"]);
@@ -61,6 +68,7 @@ test("subjects view renders add forms and edits assignments without globals", as
   assert.match(html, /data-form="assignment-quick-add"/);
   assert.match(html, /data-action="edit-subject"/);
   assert.match(html, /data-action="edit-assignment"/);
+  assert.match(html, /Assignment · Due 01\/06\/2026/);
   assert.match(html, /Due 01\/06\/2026/);
   assert.doesNotMatch(html, /onclick=/);
 
@@ -96,6 +104,7 @@ test("subjects and upcoming views display dd/mm/yyyy dates in due date order", a
     getAssessments: () => assessments,
     addSubject: async () => {},
     addAssessment: async () => {},
+    formatAssignmentType,
     formatDisplayDate,
     sortByDueDate
   }, ["renderSubjectsView"]);
@@ -169,7 +178,8 @@ test("assignment modal saves new and edited assignments with normalized values",
     getAssessmentById: id => assessments[id],
     addAssessment: async assessment => added.push(assessment),
     updateAssessment: async (id, assessment) => updated.push({ id, assessment }),
-    deleteAssessment: async id => deleted.push(id)
+    deleteAssessment: async id => deleted.push(id),
+    formatAssignmentType
   }, [
     "openNewAssignmentModal",
     "openEditAssignmentModal",
@@ -183,6 +193,7 @@ test("assignment modal saves new and edited assignments with normalized values",
   modal.openNewAssignmentModal({ dueDate: "2026-06-10", type: "assignment", weight: 0, mark: 0 });
   assert.equal(modal.hasAssignmentModal(), true);
   assert.match(modal.renderAssignmentModal(), /Add item/);
+  assert.match(modal.renderAssignmentModal(), />Assignment<\/option>/);
 
   await modal.saveAssignmentModal(makeForm({
     title: "Exam",

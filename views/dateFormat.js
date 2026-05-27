@@ -22,3 +22,9 @@ export function getTodayIsoDate() {
 export function isBeforeToday(isoDate = "") {
   return isoDate < getTodayIsoDate();
 }
+
+export function formatAssignmentType(type = "") {
+  if (!type) return "";
+
+  return `${type.slice(0, 1).toUpperCase()}${type.slice(1)}`;
+}

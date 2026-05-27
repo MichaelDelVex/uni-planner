@@ -4,7 +4,7 @@ import {
   addSubject,
   addAssessment
 } from "../core/store.js";
-import { formatDisplayDate, sortByDueDate } from "./dateFormat.js";
+import { formatAssignmentType, formatDisplayDate, sortByDueDate } from "./dateFormat.js";
 
 const SUBJECT_COLORS = [
   "#60a5fa",
@@ -119,7 +119,7 @@ export function renderSubjectsView() {
                   <strong>${a.title}</strong>
                   <button class="small-button" type="button" data-action="edit-assignment" data-assessment-id="${a.id}">Edit</button>
                 </div>
-                <div class="muted">${a.type} · Due ${formatDisplayDate(a.dueDate)}</div>
+                <div class="muted">${formatAssignmentType(a.type)} · Due ${formatDisplayDate(a.dueDate)}</div>
                 <div class="muted">Weight: ${a.weight || 0}% · Mark: ${a.mark || 0}%</div>
               </div>
             `).join("") || `<div class="muted">No items yet</div>`}

@@ -5,6 +5,7 @@ import {
   getSubjects,
   updateAssessment
 } from "../core/store.js";
+import { formatAssignmentType } from "./dateFormat.js";
 
 let modalState = null;
 
@@ -128,7 +129,7 @@ export function renderAssignmentModal() {
             <span>Type</span>
             <select name="type">
               ${["assignment", "exam", "class", "quiz", "placement", "other"].map(type => `
-                <option value="${type}" ${type === selectedType ? "selected" : ""}>${type}</option>
+                <option value="${type}" ${type === selectedType ? "selected" : ""}>${formatAssignmentType(type)}</option>
               `).join("")}
             </select>
           </label>
