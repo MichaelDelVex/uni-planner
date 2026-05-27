@@ -101,8 +101,13 @@ export function renderSubjectsView() {
 
       return `
         <div class="card" style="border-left: 4px solid ${s.color}">
-          <strong>${s.code}</strong>
-          <div class="muted">${s.name}</div>
+          <div class="item-header">
+            <div>
+              <strong>${s.code}</strong>
+              <div class="muted">${s.name}</div>
+            </div>
+            <button class="small-button" type="button" data-action="edit-subject" data-subject-id="${s.id}">Edit</button>
+          </div>
 
           <div class="list">
             ${subjectItems.map(a => `

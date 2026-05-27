@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "install-hooks": "git config core.hooksPath .githooks",
+    "test": "node --test"
+  },
   "dependencies": {
     "firebase": "^12.13.0"
   }

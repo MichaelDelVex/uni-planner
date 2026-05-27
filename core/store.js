@@ -76,6 +76,14 @@ export async function addSubject(subject) {
   });
 }
 
+export async function updateSubject(id, updated) {
+  await updateDoc(userDoc("subjects", id), updated);
+
+  subjects = subjects.map(subject =>
+    subject.id === id ? { ...subject, ...updated } : subject
+  );
+}
+
 export async function addAssessment(assessment) {
   const ref = await addDoc(userCollection("assessments"), assessment);
 

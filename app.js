@@ -17,6 +17,13 @@ import {
   renderAssignmentModal,
   saveAssignmentModal
 } from "./views/assignmentModal.js";
+import {
+  closeSubjectModal,
+  hasSubjectModal,
+  openEditSubjectModal,
+  renderSubjectModal,
+  saveSubjectModal
+} from "./views/subjectModal.js";
 
 let currentView = "calendar";
 let currentUser = null;
@@ -58,6 +65,7 @@ function render() {
       ${viewHTML}
     </div>
     ${renderAssignmentModal()}
+    ${renderSubjectModal()}
   `;
 }
 
@@ -100,8 +108,20 @@ document.addEventListener("click", async (event) => {
     return;
   }
 
+  if (action === "edit-subject") {
+    openEditSubjectModal(actionTarget.dataset.subjectId);
+    render();
+    return;
+  }
+
   if (action === "close-assignment-modal") {
     closeAssignmentModal();
+    render();
+    return;
+  }
+
+  if (action === "close-subject-modal") {
+    closeSubjectModal();
     render();
     return;
   }
@@ -133,14 +153,28 @@ document.addEventListener("submit", async (event) => {
   if (form.dataset.form === "assignment-modal") {
     await saveAssignmentModal(form);
     render();
+    return;
+  }
+
+  if (form.dataset.form === "subject-modal") {
+    await saveSubjectModal(form);
+    render();
   }
 });
 
 document.addEventListener("keydown", (event) => {
-  if (event.key !== "Escape" || !hasAssignmentModal()) return;
+  if (event.key !== "Escape") return;
 
-  closeAssignmentModal();
-  render();
+  if (hasAssignmentModal()) {
+    closeAssignmentModal();
+    render();
+    return;
+  }
+
+  if (hasSubjectModal()) {
+    closeSubjectModal();
+    render();
+  }
 });
 
 observeAuth(async (user) => {
