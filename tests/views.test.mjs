@@ -64,6 +64,14 @@ function formatTimeRange(startTime = "", endTime = "") {
   return "";
 }
 
+const SUBJECT_COLORS = ["#60a5fa", "#34d399", "#fbbf24"];
+
+function renderColorOptions(selectedColor = SUBJECT_COLORS[0]) {
+  return `<div class="color-picker">${SUBJECT_COLORS.map(color => `
+    <input type="radio" name="color" value="${color}" ${color === selectedColor ? "checked" : ""} />
+  `).join("")}</div>`;
+}
+
 test("subjects view renders add forms and edits assignments without globals", async () => {
   const addedSubjects = [];
   const addedAssessments = [];
@@ -80,6 +88,8 @@ test("subjects view renders add forms and edits assignments without globals", as
     formatTimeRange,
     isClassType,
     isGradeType,
+    SUBJECT_COLORS,
+    renderColorOptions,
     sortByDueDate
   }, ["renderSubjectsView", "addSubjectFromForm", "addAssignmentFromForm"]);
 
@@ -88,12 +98,13 @@ test("subjects view renders add forms and edits assignments without globals", as
   assert.match(html, /data-form="assignment-quick-add"/);
   assert.match(html, /data-action="edit-subject"/);
   assert.match(html, /data-action="edit-assignment"/);
+  assert.match(html, /class="color-picker"/);
   assert.match(html, /Assignment · Due 01\/06\/2026/);
   assert.match(html, /Due 01\/06\/2026/);
   assert.doesNotMatch(html, /onclick=/);
 
-  await view.addSubjectFromForm(makeForm({ code: "PSY100", name: "Psychology" }));
-  assert.deepEqual(plain(addedSubjects[0]), { code: "PSY100", name: "Psychology", color: "#34d399" });
+  await view.addSubjectFromForm(makeForm({ code: "PSY100", name: "Psychology", color: "#fbbf24" }));
+  assert.deepEqual(plain(addedSubjects[0]), { code: "PSY100", name: "Psychology", color: "#fbbf24" });
 
   await view.addAssignmentFromForm(makeForm({
     subjectId: "s1",
@@ -150,6 +161,8 @@ test("subjects and upcoming views display dd/mm/yyyy dates in due date order", a
     formatTimeRange,
     isClassType,
     isGradeType,
+    SUBJECT_COLORS,
+    renderColorOptions,
     sortByDueDate
   }, ["renderSubjectsView"]);
 
@@ -272,6 +285,8 @@ test("primary views render useful empty states", async () => {
     formatTimeRange,
     isClassType,
     isGradeType,
+    SUBJECT_COLORS,
+    renderColorOptions,
     sortByDueDate
   }, ["renderSubjectsView"]);
 
@@ -406,11 +421,12 @@ test("assignment modal saves new and edited assignments with normalized values",
 
 test("subject modal edits unit code and class name", async () => {
   const updated = [];
-  const subject = { id: "s1", code: "NUR1001", name: "Nursing" };
+  const subject = { id: "s1", code: "NUR1001", name: "Nursing", color: "#60a5fa" };
 
   const modal = await loadBrowserModule(subjectModalPath, {
     getSubjectById: id => id === subject.id ? subject : undefined,
-    updateSubject: async (id, changes) => updated.push({ id, changes })
+    updateSubject: async (id, changes) => updated.push({ id, changes }),
+    renderColorOptions
   }, [
     "openEditSubjectModal",
     "closeSubjectModal",
@@ -424,17 +440,20 @@ test("subject modal edits unit code and class name", async () => {
   assert.match(modal.renderSubjectModal(), /Edit class/);
   assert.match(modal.renderSubjectModal(), /Unit code/);
   assert.match(modal.renderSubjectModal(), /Class name/);
+  assert.match(modal.renderSubjectModal(), /color-picker/);
 
   await modal.saveSubjectModal(makeForm({
     code: "NUR1002",
-    name: "Nursing Practice"
+    name: "Nursing Practice",
+    color: "#fbbf24"
   }));
 
   assert.deepEqual(plain(updated[0]), {
     id: "s1",
     changes: {
       code: "NUR1002",
-      name: "Nursing Practice"
+      name: "Nursing Practice",
+      color: "#fbbf24"
     }
   });
   assert.equal(modal.hasSubjectModal(), false);

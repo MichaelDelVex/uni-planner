@@ -219,6 +219,42 @@ button:active {
   display: none !important;
 }
 
+.color-picker {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0 4px;
+  padding-bottom: 6px;
+  overflow-x: auto;
+}
+
+.color-option {
+  position: relative;
+  flex: 0 0 auto;
+  display: block;
+  margin: 0;
+}
+
+.color-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.color-swatch {
+  display: block;
+  width: 34px;
+  height: 34px;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: var(--swatch-color);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.22);
+}
+
+.color-option input:checked + .color-swatch {
+  border-color: var(--text);
+  box-shadow: 0 0 0 3px var(--primary-soft), inset 0 0 0 2px rgba(255, 255, 255, 0.28);
+}
+
 /* =========================
    NAVIGATION (APP BAR STYLE)
 ========================= */
@@ -322,13 +358,12 @@ button:active {
 }
 
 .cal-cell.is-today {
-  border-color: var(--primary);
-  box-shadow: inset 0 0 0 1px var(--primary), 0 0 0 3px var(--primary-soft);
-  background: rgba(251, 127, 189, 0.12);
+  background: rgba(255,228,241,0.055);
 }
 
 .cal-cell.is-selected {
-  border-color: var(--accent);
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary), 0 0 0 3px var(--primary-soft);
   background: rgba(249, 168, 212, 0.13);
 }
 
@@ -537,11 +572,16 @@ button:active {
   margin-top: 12px;
 }
 
-.modal label span {
+.modal label span,
+.form-field > span {
   display: block;
   color: var(--muted);
   font-size: 12px;
   margin-bottom: 4px;
+}
+
+.form-field {
+  margin-top: 12px;
 }
 
 .form-grid {
@@ -587,11 +627,12 @@ button:active {
   }
 
   .view {
+    padding-top: var(--safe-area-top);
     padding-bottom: calc(80px + var(--safe-area-bottom));
   }
 
   .container {
-    padding: 14px;
+    padding: calc(14px + var(--safe-area-top)) 14px 14px;
   }
 
   .card {

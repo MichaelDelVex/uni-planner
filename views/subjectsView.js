@@ -12,20 +12,13 @@ import {
   isGradeType,
   sortByDueDate
 } from "./dateFormat.js";
-
-const SUBJECT_COLORS = [
-  "#60a5fa",
-  "#34d399",
-  "#fbbf24",
-  "#f87171",
-  "#a78bfa",
-  "#fb7185"
-];
+import { SUBJECT_COLORS, renderColorOptions } from "./subjectColors.js";
 
 export async function addSubjectFromForm(form) {
   const fields = form.elements;
   const code = fields.namedItem("code").value.trim();
   const name = fields.namedItem("name").value.trim();
+  const color = fields.namedItem("color")?.value;
 
   if (!code || !name) return;
 
@@ -34,7 +27,7 @@ export async function addSubjectFromForm(form) {
   await addSubject({
     code,
     name,
-    color: SUBJECT_COLORS[subjects.length % SUBJECT_COLORS.length]
+    color: color || SUBJECT_COLORS[subjects.length % SUBJECT_COLORS.length]
   });
 }
 
@@ -79,6 +72,7 @@ export function renderSubjectsView() {
       <h3>Add Subject</h3>
       <input name="code" placeholder="Subject code e.g. NUR1001" />
       <input name="name" placeholder="Subject name" />
+      ${renderColorOptions(SUBJECT_COLORS[subjects.length % SUBJECT_COLORS.length])}
       <button type="submit">Add Subject</button>
     </form>
 
