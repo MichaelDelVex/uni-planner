@@ -28,3 +28,19 @@ export function formatAssignmentType(type = "") {
 
   return `${type.slice(0, 1).toUpperCase()}${type.slice(1)}`;
 }
+
+export function isGradeType(type = "") {
+  return ["assignment", "exam", "quiz"].includes(type);
+}
+
+export function isClassType(type = "") {
+  return ["class", "placement"].includes(type);
+}
+
+export function formatTimeRange(startTime = "", endTime = "") {
+  if (startTime && endTime) return `${startTime}-${endTime}`;
+  if (startTime) return startTime;
+  if (endTime) return `Until ${endTime}`;
+
+  return "";
+}

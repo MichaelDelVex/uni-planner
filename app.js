@@ -1,5 +1,10 @@
 import { renderSubjectsView } from "./views/subjectsView.js";
-import { navigateCalendarMonth, renderCalendarView } from "./views/calendarView.js";
+import {
+  navigateCalendarMonth,
+  navigateCalendarToToday,
+  renderCalendarView,
+  selectCalendarDate
+} from "./views/calendarView.js";
 import { renderUpcomingView } from "./views/upcomingView.js";
 import { renderGradesView } from "./views/gradesView.js";
 import { loadData, clearData } from "./core/store.js";
@@ -27,6 +32,38 @@ import {
 
 let currentView = "calendar";
 let currentUser = null;
+
+function isGradeType(type) {
+  return ["assignment", "exam", "quiz"].includes(type);
+}
+
+function isClassType(type) {
+  return ["class", "placement"].includes(type);
+}
+
+function updatePlannerItemFields(form, type) {
+  const showGradeFields = isGradeType(type);
+  const showClassFields = isClassType(type);
+
+  form.querySelectorAll('[data-field-group="grade"]').forEach(field => {
+    field.classList.toggle("is-hidden", !showGradeFields);
+  });
+
+  form.querySelectorAll('[data-field-group="class"]').forEach(field => {
+    field.classList.toggle("is-hidden", !showClassFields);
+  });
+
+  if (!showGradeFields) {
+    form.elements.namedItem("weight").value = "";
+    form.elements.namedItem("mark").value = "";
+  }
+
+  if (!showClassFields) {
+    form.elements.namedItem("startTime").value = "";
+    form.elements.namedItem("endTime").value = "";
+    form.elements.namedItem("location").value = "";
+  }
+}
 
 function switchView(view) {
   currentView = view;
@@ -103,6 +140,18 @@ document.addEventListener("click", async (event) => {
     return;
   }
 
+  if (action === "calendar-today") {
+    navigateCalendarToToday();
+    render();
+    return;
+  }
+
+  if (action === "select-calendar-date") {
+    selectCalendarDate(actionTarget.dataset.dueDate);
+    render();
+    return;
+  }
+
   if (action === "new-assignment") {
     openNewAssignmentModal({
       dueDate: actionTarget.dataset.dueDate,
@@ -172,6 +221,13 @@ document.addEventListener("submit", async (event) => {
     await saveSubjectModal(form);
     render();
   }
+});
+
+document.addEventListener("change", (event) => {
+  const target = event.target;
+  if (target.dataset.action !== "assignment-type-change") return;
+
+  updatePlannerItemFields(target.closest("form"), target.value);
 });
 
 document.addEventListener("keydown", (event) => {

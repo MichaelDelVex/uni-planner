@@ -5,7 +5,7 @@ import {
   getSubjects,
   updateAssessment
 } from "../core/store.js";
-import { formatAssignmentType } from "./dateFormat.js";
+import { formatAssignmentType, isClassType, isGradeType } from "./dateFormat.js";
 
 let modalState = null;
 
@@ -27,15 +27,26 @@ function normalizeNumber(value) {
 
 function getFormData(form) {
   const fields = form.elements;
-
-  return {
+  const type = fields.namedItem("type").value;
+  const assessment = {
     title: fields.namedItem("title").value.trim(),
     subjectId: fields.namedItem("subjectId").value || null,
-    type: fields.namedItem("type").value,
-    dueDate: fields.namedItem("dueDate").value,
-    weight: normalizeNumber(fields.namedItem("weight").value),
-    mark: normalizeNumber(fields.namedItem("mark").value)
+    type,
+    dueDate: fields.namedItem("dueDate").value
   };
+
+  if (isGradeType(type)) {
+    assessment.weight = normalizeNumber(fields.namedItem("weight").value);
+    assessment.mark = normalizeNumber(fields.namedItem("mark").value);
+  }
+
+  if (isClassType(type)) {
+    assessment.startTime = fields.namedItem("startTime").value;
+    assessment.endTime = fields.namedItem("endTime").value;
+    assessment.location = fields.namedItem("location").value.trim();
+  }
+
+  return assessment;
 }
 
 export function openNewAssignmentModal(defaults = {}) {
@@ -98,6 +109,8 @@ export function renderAssignmentModal() {
   const selectedSubjectId = assessment.subjectId || "";
   const selectedType = assessment.type || "assignment";
   const title = modalState.mode === "edit" ? "Edit item" : "Add item";
+  const showGradeFields = isGradeType(selectedType);
+  const showClassFields = isClassType(selectedType);
 
   return `
     <div class="modal-backdrop" data-action="close-assignment-modal">
@@ -127,8 +140,8 @@ export function renderAssignmentModal() {
 
           <label>
             <span>Type</span>
-            <select name="type">
-              ${["assignment", "exam", "class", "quiz", "placement", "other"].map(type => `
+            <select name="type" data-action="assignment-type-change">
+              ${["assignment", "exam", "quiz", "class", "placement", "todo", "other"].map(type => `
                 <option value="${type}" ${type === selectedType ? "selected" : ""}>${formatAssignmentType(type)}</option>
               `).join("")}
             </select>
@@ -140,14 +153,31 @@ export function renderAssignmentModal() {
               <input name="dueDate" type="date" value="${escapeHtml(assessment.dueDate || "")}" required />
             </label>
 
-            <label>
+            <label class="${showGradeFields ? "" : "is-hidden"}" data-field-group="grade">
               <span>Weight %</span>
               <input name="weight" type="number" min="0" max="100" step="0.01" value="${assessment.weight ?? 0}" />
             </label>
 
-            <label>
+            <label class="${showGradeFields ? "" : "is-hidden"}" data-field-group="grade">
               <span>Mark %</span>
               <input name="mark" type="number" min="0" max="100" step="0.01" value="${assessment.mark ?? 0}" />
+            </label>
+          </div>
+
+          <div class="form-grid ${showClassFields ? "" : "is-hidden"}" data-field-group="class">
+            <label>
+              <span>Start time</span>
+              <input name="startTime" type="time" value="${escapeHtml(assessment.startTime || "")}" />
+            </label>
+
+            <label>
+              <span>End time</span>
+              <input name="endTime" type="time" value="${escapeHtml(assessment.endTime || "")}" />
+            </label>
+
+            <label>
+              <span>Location</span>
+              <input name="location" value="${escapeHtml(assessment.location || "")}" placeholder="Room, campus, online" />
             </label>
           </div>
 

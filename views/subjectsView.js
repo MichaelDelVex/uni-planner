@@ -4,7 +4,14 @@ import {
   addSubject,
   addAssessment
 } from "../core/store.js";
-import { formatAssignmentType, formatDisplayDate, sortByDueDate } from "./dateFormat.js";
+import {
+  formatAssignmentType,
+  formatDisplayDate,
+  formatTimeRange,
+  isClassType,
+  isGradeType,
+  sortByDueDate
+} from "./dateFormat.js";
 
 const SUBJECT_COLORS = [
   "#60a5fa",
@@ -37,19 +44,28 @@ export async function addAssignmentFromForm(form) {
   const title = fields.namedItem("title").value.trim();
   const type = fields.namedItem("type").value;
   const dueDate = fields.namedItem("dueDate").value;
-  const weight = Number(fields.namedItem("weight").value || 0);
-  const mark = Number(fields.namedItem("mark").value || 0);
 
   if (!subjectId || !title || !dueDate) return;
 
-  await addAssessment({
+  const assessment = {
     subjectId,
     title,
     type,
-    dueDate,
-    weight,
-    mark
-  });
+    dueDate
+  };
+
+  if (isGradeType(type)) {
+    assessment.weight = Number(fields.namedItem("weight").value || 0);
+    assessment.mark = Number(fields.namedItem("mark").value || 0);
+  }
+
+  if (isClassType(type)) {
+    assessment.startTime = fields.namedItem("startTime").value;
+    assessment.endTime = fields.namedItem("endTime").value;
+    assessment.location = fields.namedItem("location").value.trim();
+  }
+
+  await addAssessment(assessment);
 }
 
 export function renderSubjectsView() {
@@ -78,26 +94,58 @@ export function renderSubjectsView() {
 
       <input name="title" placeholder="Title e.g. Essay 1" />
 
-      <select name="type">
+      <select name="type" data-action="assignment-type-change">
         <option value="assignment">Assignment</option>
         <option value="exam">Exam</option>
-        <option value="class">Class</option>
         <option value="quiz">Quiz</option>
+        <option value="class">Class</option>
         <option value="placement">Placement</option>
+        <option value="todo">Todo</option>
         <option value="other">Other</option>
       </select>
 
       <input name="dueDate" type="date" />
 
-      <input name="weight" type="number" placeholder="Weight % optional" />
-      <input name="mark" type="number" placeholder="Mark % optional" />
+      <div class="form-grid">
+        <label data-field-group="grade">
+          <span>Weight %</span>
+          <input name="weight" type="number" placeholder="Optional" />
+        </label>
+
+        <label data-field-group="grade">
+          <span>Mark %</span>
+          <input name="mark" type="number" placeholder="Optional" />
+        </label>
+      </div>
+
+      <div class="form-grid is-hidden" data-field-group="class">
+        <label>
+          <span>Start time</span>
+          <input name="startTime" type="time" />
+        </label>
+
+        <label>
+          <span>End time</span>
+          <input name="endTime" type="time" />
+        </label>
+
+        <label>
+          <span>Location</span>
+          <input name="location" placeholder="Room, campus, online" />
+        </label>
+      </div>
 
       <button type="submit">Add Item</button>
     </form>
 
     <h3>Your Subjects</h3>
 
-    ${subjects.map(s => {
+    ${subjects.length === 0 ? `
+      <div class="empty-state">
+        <strong>No subjects yet</strong>
+        <div class="muted">Add your first subject above to start planning classes and assessments.</div>
+      </div>
+    ` : subjects.map(s => {
       const subjectItems = assessments
         .filter(a => a.subjectId === s.id)
         .sort(sortByDueDate);
@@ -120,7 +168,14 @@ export function renderSubjectsView() {
                   <button class="small-button" type="button" data-action="edit-assignment" data-assessment-id="${a.id}">Edit</button>
                 </div>
                 <div class="muted">${formatAssignmentType(a.type)} · Due ${formatDisplayDate(a.dueDate)}</div>
-                <div class="muted">Weight: ${a.weight || 0}% · Mark: ${a.mark || 0}%</div>
+                ${isClassType(a.type) && (formatTimeRange(a.startTime, a.endTime) || a.location)
+                  ? `<div class="muted">${[formatTimeRange(a.startTime, a.endTime), a.location].filter(Boolean).join(" · ")}</div>`
+                  : ""
+                }
+                ${isGradeType(a.type)
+                  ? `<div class="muted">Weight: ${a.weight || 0}% · Mark: ${a.mark || 0}%</div>`
+                  : ""
+                }
               </div>
             `).join("") || `<div class="muted">No items yet</div>`}
           </div>

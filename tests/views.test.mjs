@@ -5,6 +5,7 @@ import { loadBrowserModule, makeForm } from "./helpers/moduleLoader.mjs";
 const subjectsPath = new URL("../views/subjectsView.js", import.meta.url);
 const calendarPath = new URL("../views/calendarView.js", import.meta.url);
 const upcomingPath = new URL("../views/upcomingView.js", import.meta.url);
+const gradesPath = new URL("../views/gradesView.js", import.meta.url);
 const modalPath = new URL("../views/assignmentModal.js", import.meta.url);
 const subjectModalPath = new URL("../views/subjectModal.js", import.meta.url);
 
@@ -47,6 +48,22 @@ function formatAssignmentType(type = "") {
   return `${type.slice(0, 1).toUpperCase()}${type.slice(1)}`;
 }
 
+function isGradeType(type = "") {
+  return ["assignment", "exam", "quiz"].includes(type);
+}
+
+function isClassType(type = "") {
+  return ["class", "placement"].includes(type);
+}
+
+function formatTimeRange(startTime = "", endTime = "") {
+  if (startTime && endTime) return `${startTime}-${endTime}`;
+  if (startTime) return startTime;
+  if (endTime) return `Until ${endTime}`;
+
+  return "";
+}
+
 test("subjects view renders add forms and edits assignments without globals", async () => {
   const addedSubjects = [];
   const addedAssessments = [];
@@ -60,6 +77,9 @@ test("subjects view renders add forms and edits assignments without globals", as
     addAssessment: async assessment => addedAssessments.push(assessment),
     formatAssignmentType,
     formatDisplayDate,
+    formatTimeRange,
+    isClassType,
+    isGradeType,
     sortByDueDate
   }, ["renderSubjectsView", "addSubjectFromForm", "addAssignmentFromForm"]);
 
@@ -91,6 +111,27 @@ test("subjects view renders add forms and edits assignments without globals", as
     weight: 10,
     mark: 95
   });
+
+  await view.addAssignmentFromForm(makeForm({
+    subjectId: "s1",
+    title: "Lecture",
+    type: "class",
+    dueDate: "2026-06-09",
+    weight: "20",
+    mark: "80",
+    startTime: "11:00",
+    endTime: "12:00",
+    location: "Campus"
+  }));
+  assert.deepEqual(plain(addedAssessments[1]), {
+    subjectId: "s1",
+    title: "Lecture",
+    type: "class",
+    dueDate: "2026-06-09",
+    startTime: "11:00",
+    endTime: "12:00",
+    location: "Campus"
+  });
 });
 
 test("subjects and upcoming views display dd/mm/yyyy dates in due date order", async () => {
@@ -106,6 +147,9 @@ test("subjects and upcoming views display dd/mm/yyyy dates in due date order", a
     addAssessment: async () => {},
     formatAssignmentType,
     formatDisplayDate,
+    formatTimeRange,
+    isClassType,
+    isGradeType,
     sortByDueDate
   }, ["renderSubjectsView"]);
 
@@ -117,6 +161,7 @@ test("subjects and upcoming views display dd/mm/yyyy dates in due date order", a
   const upcomingView = await loadBrowserModule(upcomingPath, {
     getAssessments: () => assessments,
     formatDisplayDate,
+    formatTimeRange,
     isBeforeToday,
     sortByDueDate
   }, ["renderUpcomingView"]);
@@ -134,6 +179,7 @@ test("upcoming view marks items due before today", async () => {
   const upcomingView = await loadBrowserModule(upcomingPath, {
     getAssessments: () => [{ id: "a1", title: "Past essay", dueDate: pastDate }],
     formatDisplayDate,
+    formatTimeRange,
     isBeforeToday,
     sortByDueDate
   }, ["renderUpcomingView"]);
@@ -149,20 +195,120 @@ test("calendar view marks days for new assignments and items for editing", async
 
   const view = await loadBrowserModule(calendarPath, {
     getAssessments: () => [{ id: "a1", title: "Essay", subjectId: "s1", dueDate: isoDate(currentYear, currentMonth, 24) }],
-    getSubjectById: () => ({ color: "#60a5fa" })
+    getSubjectById: () => ({ code: "NUR1001", color: "#60a5fa" }),
+    formatAssignmentType,
+    formatDisplayDate,
+    formatTimeRange
   }, ["navigateCalendarMonth", "renderCalendarView"]);
 
   const html = view.renderCalendarView();
   assert.match(html, /class="cal-weekday">Sun/);
   assert.match(html, /data-action="calendar-prev-month"/);
   assert.match(html, /data-action="calendar-next-month"/);
+  assert.match(html, /data-action="calendar-today"/);
+  assert.match(html, /data-action="select-calendar-date"/);
   assert.match(html, /data-action="new-assignment"/);
   assert.match(html, /data-action="edit-assignment"/);
+  assert.match(html, /class="day-agenda"/);
   assert.match(html, /data-assessment-id="a1"/);
   assert.doesNotMatch(html, /prompt|onclick=/);
 
   view.navigateCalendarMonth(12);
   assert.match(view.renderCalendarView(), new RegExp(String(currentYear + 1)));
+});
+
+test("calendar highlights today and shows a compact count for busy days", async () => {
+  const today = getTodayIsoDate();
+  const view = await loadBrowserModule(calendarPath, {
+    getAssessments: () => [
+      { id: "a1", title: "Essay", subjectId: "s1", dueDate: today },
+      { id: "a2", title: "Quiz", subjectId: "s1", dueDate: today }
+    ],
+    getSubjectById: () => ({ code: "NUR1001", color: "#60a5fa" }),
+    formatAssignmentType,
+    formatDisplayDate,
+    formatTimeRange
+  }, ["navigateCalendarToToday", "renderCalendarView"]);
+
+  view.navigateCalendarToToday();
+  const html = view.renderCalendarView();
+
+  assert.match(html, /cal-cell is-today/);
+  assert.match(html, /class="cal-item-count">\+2<\/div>/);
+  assert.match(html, /2 items/);
+});
+
+test("calendar selected day agenda lists and adds items for that date", async () => {
+  const selectedDate = "2026-06-15";
+  const view = await loadBrowserModule(calendarPath, {
+    getAssessments: () => [
+      { id: "a1", title: "Lecture", subjectId: "s1", type: "class", dueDate: selectedDate, startTime: "09:00", endTime: "10:00", location: "Room 2" }
+    ],
+    getSubjectById: () => ({ code: "NUR1001", color: "#60a5fa" }),
+    formatAssignmentType,
+    formatDisplayDate,
+    formatTimeRange
+  }, ["navigateCalendarToToday", "selectCalendarDate", "renderCalendarView"]);
+
+  view.navigateCalendarToToday();
+  view.selectCalendarDate(selectedDate);
+  const html = view.renderCalendarView();
+
+  assert.match(html, /class="day-agenda"/);
+  assert.match(html, /15\/06\/2026/);
+  assert.match(html, /Lecture/);
+  assert.match(html, /Class · NUR1001 · 09:00-10:00 · Room 2/);
+  assert.match(html, /data-action="new-assignment" data-due-date="2026-06-15"/);
+});
+
+test("primary views render useful empty states", async () => {
+  const subjectsView = await loadBrowserModule(subjectsPath, {
+    getSubjects: () => [],
+    getAssessments: () => [],
+    addSubject: async () => {},
+    addAssessment: async () => {},
+    formatAssignmentType,
+    formatDisplayDate,
+    formatTimeRange,
+    isClassType,
+    isGradeType,
+    sortByDueDate
+  }, ["renderSubjectsView"]);
+
+  const upcomingView = await loadBrowserModule(upcomingPath, {
+    getAssessments: () => [],
+    formatDisplayDate,
+    formatTimeRange,
+    isBeforeToday,
+    sortByDueDate
+  }, ["renderUpcomingView"]);
+
+  const gradesView = await loadBrowserModule(gradesPath, {
+    getSubjects: () => [],
+    getAssessments: () => [],
+    isGradeType
+  }, ["renderGradesView"]);
+
+  assert.match(subjectsView.renderSubjectsView(), /No subjects yet/);
+  assert.match(upcomingView.renderUpcomingView(), /No upcoming items/);
+  assert.match(gradesView.renderGradesView(), /No grades yet/);
+});
+
+test("calendar month matrix uses local dates so weekdays stay aligned", async () => {
+  const view = await loadBrowserModule(calendarPath, {
+    getAssessments: () => [],
+    getSubjectById: () => undefined,
+    formatAssignmentType,
+    formatDisplayDate,
+    formatTimeRange
+  }, ["getMonthMatrix"]);
+
+  const june2026 = view.getMonthMatrix(2026, 5);
+
+  assert.equal(june2026[0], null);
+  assert.equal(june2026[1], "2026-06-01");
+  assert.equal(june2026[2], "2026-06-02");
+  assert.equal(june2026.at(-1), "2026-06-30");
 });
 
 test("assignment modal saves new and edited assignments with normalized values", async () => {
@@ -179,7 +325,9 @@ test("assignment modal saves new and edited assignments with normalized values",
     addAssessment: async assessment => added.push(assessment),
     updateAssessment: async (id, assessment) => updated.push({ id, assessment }),
     deleteAssessment: async id => deleted.push(id),
-    formatAssignmentType
+    formatAssignmentType,
+    isClassType,
+    isGradeType
   }, [
     "openNewAssignmentModal",
     "openEditAssignmentModal",
@@ -212,6 +360,30 @@ test("assignment modal saves new and edited assignments with normalized values",
     mark: 0
   });
   assert.equal(modal.hasAssignmentModal(), false);
+
+  modal.openNewAssignmentModal({ dueDate: "2026-06-12", type: "class" });
+  assert.match(modal.renderAssignmentModal(), /Start time/);
+  assert.match(modal.renderAssignmentModal(), /Location/);
+  await modal.saveAssignmentModal(makeForm({
+    title: "Tutorial",
+    subjectId: "s1",
+    type: "class",
+    dueDate: "2026-06-12",
+    weight: "99",
+    mark: "99",
+    startTime: "09:00",
+    endTime: "10:30",
+    location: "Room 4"
+  }));
+  assert.deepEqual(plain(added[1]), {
+    title: "Tutorial",
+    subjectId: "s1",
+    type: "class",
+    dueDate: "2026-06-12",
+    startTime: "09:00",
+    endTime: "10:30",
+    location: "Room 4"
+  });
 
   modal.openEditAssignmentModal("a1");
   assert.match(modal.renderAssignmentModal(), /Edit item/);
